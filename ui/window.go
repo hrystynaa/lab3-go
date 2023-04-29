@@ -1,6 +1,10 @@
 package ui
 
 import (
+	"image"
+	"image/color"
+	"log"
+
 	"golang.org/x/exp/shiny/driver"
 	"golang.org/x/exp/shiny/imageutil"
 	"golang.org/x/exp/shiny/screen"
@@ -10,9 +14,6 @@ import (
 	"golang.org/x/mobile/event/mouse"
 	"golang.org/x/mobile/event/paint"
 	"golang.org/x/mobile/event/size"
-	"image"
-	"image/color"
-	"log"
 )
 
 type Visualizer struct {
@@ -144,7 +145,7 @@ func (pw *Visualizer) drawDefaultUI() {
 
 	x, y := pw.shapePos.X, pw.shapePos.Y
 
-	height, width := 400, 100
+	height, width := 400, 150
 	yellow := color.RGBA{255, 255, 0, 255}
 
 	pw.w.Fill(image.Rect(x-width/2, y-height/2, x+width/2, y+height/2), yellow, draw.Src)
