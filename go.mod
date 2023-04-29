@@ -1,5 +1,4 @@
-module github.com/roman-mazur/architecture-lab-3
-
+module github.com/hrystynaa/lab3-go
 go 1.20
 
 require (

@@ -2,6 +2,7 @@ package painter
 
 import (
 	"image"
+	"sync"
 
 	"golang.org/x/exp/shiny/screen"
 )
@@ -49,8 +50,43 @@ func (l *Loop) StopAndWait() {
 
 // TODO: реалізувати власну чергу повідомлень.
 type messageQueue struct {
+	operations []Operation
+	mu         sync.Mutex
+	blocked    chan struct{}
 }
 
-func (mq *messageQueue) push(op Operation) {}
+func (mq *messageQueue) push(op Operation) {
+	mq.mu.Lock()
+	defer mq.mu.Unlock()
 
-func (mq *messageQueue) pull() Operation { return nil }
+	mq.operations = append(mq.operations, op)
+
+	if mq.blocked != nil {
+		close(mq.blocked)
+		mq.blocked = nil
+	}
+}
+
+func (mq *messageQueue) pull() Operation {
+	mq.mu.Lock()
+	defer mq.mu.Unlock()
+
+	for len(mq.operations) == 0 {
+		mq.blocked = make(chan struct{})
+		mq.mu.Unlock()
+		<-mq.blocked
+		mq.mu.Lock()
+	}
+
+	op := mq.operations[0]
+	mq.operations[0] = nil
+	mq.operations = mq.operations[1:]
+	return op
+}
+
+func (mq *messageQueue) isEmpty() bool {
+	mq.mu.Lock()
+	defer mq.mu.Unlock()
+
+	return len(mq.operations) == 0
+}
