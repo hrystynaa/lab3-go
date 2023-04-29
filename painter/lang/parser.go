@@ -36,9 +36,18 @@ func (p *Parser) Parse(in io.Reader) ([]painter.Operation, error) {
 		}
 
 	}
-	p.res = append(p.res, p.backOp)
-	p.res = append(p.res, p.bgRect)
-	p.res = append(p.res, p.move)
+	if p.backOp != nil {
+		p.res = append(p.res, p.backOp)
+	}
+
+	if p.bgRect != nil {
+		p.res = append(p.res, p.bgRect)
+	}
+
+	if p.move != nil {
+		p.res = append(p.res, p.move)
+	}
+
 	for _, figure := range p.figures {
 		p.res = append(p.res, figure)
 	}
