@@ -78,8 +78,8 @@ type Move struct {
 
 func (m *Move) Do(t screen.Texture) bool {
 	for _, figure := range m.Figures {
-		figure.X = m.X
-		figure.Y = m.Y
+		figure.X += m.X
+		figure.Y += m.Y
 	}
 	return false
 }
