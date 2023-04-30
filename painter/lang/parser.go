@@ -34,11 +34,7 @@ func (p *Parser) Parse(in io.Reader) ([]painter.Operation, error) {
 		if err != nil {
 			return nil, err
 		}
-		//operation := p.res[len(p.res)-1]
-		//i := 0
-		//if _, ok := operation.(*painter.updateOp); ok {
 
-		//}
 		if len(p.res) == 1 {
 			if p.backOp != nil {
 				p.res = append(p.res, p.backOp)
@@ -55,6 +51,7 @@ func (p *Parser) Parse(in io.Reader) ([]painter.Operation, error) {
 			for _, figure := range p.figures {
 				p.res = append(p.res, figure)
 			}
+			p.res = append(p.res[1:], p.res[0])
 		}
 	}
 	return p.res, scanner.Err()
