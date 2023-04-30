@@ -34,22 +34,28 @@ func (p *Parser) Parse(in io.Reader) ([]painter.Operation, error) {
 		if err != nil {
 			return nil, err
 		}
+		//operation := p.res[len(p.res)-1]
+		//i := 0
+		//if _, ok := operation.(*painter.updateOp); ok {
 
-	}
-	if p.backOp != nil {
-		p.res = append(p.res, p.backOp)
-	}
+		//}
+		if len(p.res) == 1 {
+			if p.backOp != nil {
+				p.res = append(p.res, p.backOp)
+			}
 
-	if p.bgRect != nil {
-		p.res = append(p.res, p.bgRect)
-	}
+			if p.bgRect != nil {
+				p.res = append(p.res, p.bgRect)
+			}
 
-	if p.move != nil {
-		p.res = append(p.res, p.move)
-	}
+			if p.move != nil {
+				p.res = append(p.res, p.move)
+			}
 
-	for _, figure := range p.figures {
-		p.res = append(p.res, figure)
+			for _, figure := range p.figures {
+				p.res = append(p.res, figure)
+			}
+		}
 	}
 	return p.res, scanner.Err()
 }
@@ -73,6 +79,7 @@ func (p *Parser) parse(commandLine string) error {
 	case "green":
 		p.backOp = painter.OperationFunc(painter.GreenFill)
 	case "update":
+		p.res = p.res[:0]
 		p.res = append(p.res, painter.UpdateOp)
 	case "bgrect":
 		p.bgRect = &painter.BgRectangle{X1: args[0], Y1: args[1], X2: args[2], Y2: args[3]}
