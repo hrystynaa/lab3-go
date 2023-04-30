@@ -4,6 +4,7 @@ import (
 	"image"
 	"image/color"
 	"image/draw"
+	"reflect"
 	"testing"
 	"time"
 
@@ -48,6 +49,62 @@ func TestLoop_Post(t *testing.T) {
 	op3.AssertCalled(t, "Do", texture)
 	receiver.AssertCalled(t, "Update", texture)
 	screen.AssertCalled(t, "NewTexture", image.Pt(800, 800))
+}
+
+func TestMessageQueue_Push(t *testing.T) {
+	mq := &painter.MessageQueue{}
+
+	op1 := &operationQueueMock{}
+	mq.Push(op1)
+	if len(mq.Operations) != 1 {
+		t.Errorf("Expected queue length to be 1, but got %d", len(mq.Operations))
+	}
+	if !reflect.DeepEqual(op1, mq.Operations[0]) {
+		t.Error("Expected pushed operation to be in the queue")
+	}
+
+	op2 := &operationQueueMock{}
+	mq.Push(op2)
+	if len(mq.Operations) != 2 {
+		t.Errorf("Expected queue length to be 2, but got %d", len(mq.Operations))
+	}
+	if !reflect.DeepEqual(op2, mq.Operations[0]) {
+		t.Error("Expected pushed operation to be in the queue")
+	}
+}
+
+func TestMessageQueue_Pull(t *testing.T) {
+	mq := &painter.MessageQueue{}
+
+	op1 := &operationQueueMock{}
+	go func() {
+		time.Sleep(50 * time.Millisecond)
+		mq.Push(op1)
+	}()
+	start := time.Now()
+	op := mq.Pull()
+	elapsed := time.Since(start)
+
+	if !reflect.DeepEqual(op, op1) {
+		t.Errorf("Expected pulled operation to be the same as the pushed")
+	}
+	if elapsed < 50*time.Millisecond {
+		t.Errorf("Expected Pull to block when pulling from an empty queue")
+	}
+	if len(mq.Operations) != 0 {
+		t.Errorf("Expected queue length to be 0, but got %d", len(mq.Operations))
+	}
+	op2 := &operationQueueMock{}
+	op3 := &operationQueueMock{}
+	mq.Push(op2)
+	mq.Push(op3)
+	op = mq.Pull()
+	if len(mq.Operations) != 1 {
+		t.Errorf("Expected queue length to be 1, but got %d", len(mq.Operations))
+	}
+	if !reflect.DeepEqual(op, op2) {
+		t.Error("Expected pulled operation to be the first pushed operation")
+	}
 }
 
 type receiverMock struct {
@@ -108,4 +165,10 @@ type operationMock struct {
 func (om *operationMock) Do(t screen.Texture) bool {
 	args := om.Called(t)
 	return args.Bool(0)
+}
+
+type operationQueueMock struct{}
+
+func (m *operationQueueMock) Do(t screen.Texture) (ready bool) {
+	return false
 }
