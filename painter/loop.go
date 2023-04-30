@@ -19,7 +19,7 @@ type Loop struct {
 	next screen.Texture // текстура, яка зараз формується
 	prev screen.Texture // текстура, яка була відправленя останнього разу у Receiver
 
-	mq      messageQueue
+	Mq      messageQueue
 	done    chan struct{}
 	stopped bool
 }
@@ -36,8 +36,8 @@ func (l *Loop) Start(s screen.Screen) {
 	l.done = make(chan struct{})
 
 	go func() {
-		for !l.stopped || !l.mq.isEmpty() {
-			op := l.mq.pull()
+		for !l.stopped || !l.Mq.isEmpty() {
+			op := l.Mq.pull()
 			update := op.Do(l.next)
 			if update {
 				l.Receiver.Update(l.next)
@@ -50,7 +50,7 @@ func (l *Loop) Start(s screen.Screen) {
 
 // Post додає нову операцію у внутрішню чергу.
 func (l *Loop) Post(op Operation) {
-	l.mq.push(op)
+	l.Mq.push(op)
 }
 
 // StopAndWait сигналізує
@@ -64,43 +64,43 @@ func (l *Loop) StopAndWait() {
 
 // TODO: реалізувати власну чергу повідомлень.
 type messageQueue struct {
-	operations []Operation
+	Operations []Operation
 	mu         sync.Mutex
 	blocked    chan struct{}
 }
 
-func (mq *messageQueue) push(op Operation) {
-	mq.mu.Lock()
-	defer mq.mu.Unlock()
+func (Mq *messageQueue) push(op Operation) {
+	Mq.mu.Lock()
+	defer Mq.mu.Unlock()
 
-	mq.operations = append(mq.operations, op)
+	Mq.Operations = append(Mq.Operations, op)
 
-	if mq.blocked != nil {
-		close(mq.blocked)
-		mq.blocked = nil
+	if Mq.blocked != nil {
+		close(Mq.blocked)
+		Mq.blocked = nil
 	}
 }
 
-func (mq *messageQueue) pull() Operation {
-	mq.mu.Lock()
-	defer mq.mu.Unlock()
+func (Mq *messageQueue) pull() Operation {
+	Mq.mu.Lock()
+	defer Mq.mu.Unlock()
 
-	for len(mq.operations) == 0 {
-		mq.blocked = make(chan struct{})
-		mq.mu.Unlock()
-		<-mq.blocked
-		mq.mu.Lock()
+	for len(Mq.Operations) == 0 {
+		Mq.blocked = make(chan struct{})
+		Mq.mu.Unlock()
+		<-Mq.blocked
+		Mq.mu.Lock()
 	}
 
-	op := mq.operations[0]
-	mq.operations[0] = nil
-	mq.operations = mq.operations[1:]
+	op := Mq.Operations[0]
+	Mq.Operations[0] = nil
+	Mq.Operations = Mq.Operations[1:]
 	return op
 }
 
-func (mq *messageQueue) isEmpty() bool {
-	mq.mu.Lock()
-	defer mq.mu.Unlock()
+func (Mq *messageQueue) isEmpty() bool {
+	Mq.mu.Lock()
+	defer Mq.mu.Unlock()
 
-	return len(mq.operations) == 0
+	return len(Mq.Operations) == 0
 }
