@@ -1,0 +1,27 @@
+name: Build and Test
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Set up Go
+      uses: actions/setup-go@v3
+      with:
+        go-version: 1.20.1
+
+    - name: Build
+      run: |
+        mkdir -p out
+        go build -o out/example ./cmd/painter
+
+    - name: Test
+      run: go test ./...
