@@ -83,8 +83,8 @@ func Test_parse_struct(t *testing.T) {
 				assert.Error(t, err)
 			} else {
 				require.NoError(t, err)
-				assert.IsType(t, tt.op, ops[0])
-				assert.Equal(t, tt.op, ops[0])
+				assert.IsType(t, tt.op, ops[1])
+				assert.Equal(t, tt.op, ops[1])
 			}
 		})
 	}
