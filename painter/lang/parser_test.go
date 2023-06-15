@@ -1,11 +1,10 @@
-package test
+package lang
 
 import (
 	"strings"
 	"testing"
 
 	"github.com/hrystynaa/lab3-go/painter"
-	"github.com/hrystynaa/lab3-go/painter/lang"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -32,7 +31,7 @@ func Test_parse_func(t *testing.T) {
 			op:      painter.OperationFunc(painter.ResetScreen),
 		},
 	}
-	parser := &lang.Parser{}
+	parser := &Parser{}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			ops, err := parser.Parse(strings.NewReader(tt.command))
@@ -77,7 +76,7 @@ func Test_parse_struct(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			parser := &lang.Parser{}
+			parser := &Parser{}
 			ops, err := parser.Parse(strings.NewReader(tt.command))
 			if tt.op == nil {
 				assert.Error(t, err)

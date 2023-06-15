@@ -1,4 +1,4 @@
-package test
+package painter
 
 import (
 	"image"
@@ -8,7 +8,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/hrystynaa/lab3-go/painter"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"golang.org/x/exp/shiny/screen"
@@ -19,7 +18,8 @@ func TestLoop_Post(t *testing.T) {
 	texture := new(textureMock)
 	receiver := new(receiverMock)
 	tx := image.Pt(800, 800)
-	l := painter.Loop{
+
+	l := Loop{
 		Receiver: receiver,
 	}
 
@@ -52,7 +52,7 @@ func TestLoop_Post(t *testing.T) {
 }
 
 func TestMessageQueue_Push(t *testing.T) {
-	mq := &painter.MessageQueue{}
+	mq := &MessageQueue{}
 
 	op1 := &operationQueueMock{}
 	mq.Push(op1)
@@ -74,7 +74,7 @@ func TestMessageQueue_Push(t *testing.T) {
 }
 
 func TestMessageQueue_Pull(t *testing.T) {
-	mq := &painter.MessageQueue{}
+	mq := &MessageQueue{}
 
 	op1 := &operationQueueMock{}
 	go func() {
