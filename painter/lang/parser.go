@@ -10,12 +10,15 @@ import (
 	"github.com/hrystynaa/lab3-go/painter"
 )
 
-// Parser уміє прочитати дані з вхідного io.Reader та повернути список операцій представлені вхідним скриптом.
-type Parser struct {
+type UIState struct {
 	bgRect  *painter.BgRectangle
 	backOp  painter.Operation
 	move    []painter.Operation
 	figures []*painter.Figure
+}
+
+type Parser struct {
+	UIState
 	res     []painter.Operation
 	update  painter.Operation
 	updated bool
